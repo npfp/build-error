@@ -1,0 +1,61 @@
+[build-system]
+requires = ["scikit-build-core>=0.10", "pybind11"]
+build-backend = "scikit_build_core.build"
+
+
+[project]
+name = "example"
+version = "0.0.1"
+description="A minimal example package (with pybind11)"
+readme = "README.md"
+authors = [
+]
+requires-python = ">=3.11"
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+]
+
+[project.optional-dependencies]
+test = ["pytest"]
+
+
+[tool.scikit-build]
+sdist.cmake = true
+wheel.expand-macos-universal-tags = true
+minimum-version = "build-system.requires"
+wheel.packages = ["example"]
+build-dir = "uv-build"
+
+
+[tool.pytest.ini_options]
+minversion = "8.0"
+addopts = ["-ra", "--showlocals", "--strict-markers", "--strict-config"]
+xfail_strict = true
+log_cli_level = "INFO"
+filterwarnings = [
+    "error",
+    "ignore::pytest.PytestCacheWarning",
+]
+testpaths = ["tests"]
+
+
+[tool.cibuildwheel]
+build-frontend = "build[uv]"
+test-command = "pytest {project}/tests"
+test-extras = ["test"]
+
+# Environment variables can also be set here instead of the workflow file
+[tool.cibuildwheel.environment]
+CMAKE_CXX_STANDARD = "23"
+CMAKE_CXX_STANDARD_REQUIRED = "ON"
+CMAKE_CXX_FLAGS = "-std=c++23"
+BUILD_VERBOSE = "1"
+
+
+[tool.cibuildwheel.pyodide]
+build-frontend = {name = "build", args = ["--exports", "whole_archive"]}
